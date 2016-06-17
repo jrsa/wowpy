@@ -3,7 +3,6 @@ wdt file parsing
 """
 
 import sys, struct
-from simple_file import load
 from chunks import chunks
 
 
@@ -14,16 +13,12 @@ class Wdt(object):
     self.version = version
     self.extant_tiles = []
     self.flags = 0
-    self.main_rec = struct.Struct('ii')
+    self.main_rec = struct.Struct('II')
     self.objdef_rec = struct.Struct('IIffffffffffffHHHH')
+    self.object_filename = None
 
   def parse_modf(self, data):
-    rec = self.objdef_rec.unpack(data)
-    id, uid, posx, posy, posz,\
-    rota, rotb, rotc, b0x, b0y,\
-    b0z, b1z, b1y, b1z, flags, dset, nameset, null = rec
-
-  # io
+    self.obj = self.objdef_rec.unpack(data)
 
   def read(self, file):
     """takes file as a string"""
@@ -31,11 +26,19 @@ class Wdt(object):
       raise RuntimeError('not a wdt file')
     for id, size, data in chunks(file):
       if id == 'REVM':
-        self.version = struct.unpack('i', data)
+        self.version = struct.unpack('i', data)[0]
+
       if id == 'NIAM':
-        for i in xrange(4096):
-          flags, null = self.main_rec.unpack_from(data, i * self.main_rec.size)
-          if flags & 1: self.extant_tiles.append((i / 64, i % 64))
+        if len(data) != 32768:
+          raise RuntimeError('invalid MAIN sect')
+
+        for i in xrange(64):
+          for j in xrange(64):
+              idx = (j * 64 + i) * self.main_rec.size
+              flag = self.main_rec.unpack_from(data, idx)[0]
+              if flag & 1 == 1:
+                self.extant_tiles.append((i, j))
+
       elif id == 'DHPM':
         self.flags = struct.unpack('iiiiiiii', data)[0]
       if id == 'OMWM':
