@@ -1,34 +1,78 @@
-import formats
+import logging
 from struct import Struct
+import format_import
+import stringpool
 
 
 class DbcFile(object):
-  header = Struct('<4sIIII')
+  HEADER = Struct('<4sIIII')
+  CIGAM = 'WDBC'
 
-  def getstring(self, ofs):
-    i = ofs; dst = ''
-    while self.stringblock[i] != '\x00':
-      dst += self.stringblock[i]
-      i += 1
-    return dst
-
-  def __init__(self, data, format):
+  def __init__(self, rec_format):
+    """
+    represent a dbc table, specifying the format via a
+    (struct_format, [stringfield_indices]) pair
+    """
     self.records = []
-    magic, rec_count, field_count, rec_size, string_size = DbcFile.header.unpack_from(data)
-    if magic != 'WDBC':
-      print 'invalid dbc file (magic == ' + magic + ')'
-      return
 
-    if format == None:
-      format = ('i' * field_count, [])
-    recStruct = Struct(format[0])
-    stringFields = format[1]
+    if rec_format is None:
+      logging.warning('no format specified')
+      self.record_struct = None
+      self.string_fields = []
+    else:
+      self.record_struct = Struct(rec_format[0])
+      self.string_fields = rec_format[1]
 
-    self.stringblock = data[-string_size:]
+  def load(self, data):
+    """load records from string with the file contents"""
+
+    def getstring(data, ofs):
+      i = ofs
+      dst = ''
+      try:
+        while data[i] != '\x00':
+          dst += data[i]
+          i += 1
+        return dst
+      except IndexError, e:
+        logging.error('read past end of data')
+        return dst
+
+    header_data = DbcFile.HEADER.unpack_from(data)
+    magic, rec_count, field_count, rec_size, string_size = header_data
+
+    if magic != DbcFile.CIGAM:
+      raise RuntimeError(
+        'invalid dbc file (magic == {magic})'.format(magic=magic))
+
+    if self.record_struct is None:
+      logging.info('defaulting to unsigned ints for all fields')
+      self.record_struct = Struct('I' * field_count)
+
+    stringblock = data[-string_size:]
 
     for i in xrange(rec_count):
-      rec = list(recStruct.unpack_from(data, DbcFile.header.size + (i * recStruct.size)))
-      for f in stringFields:
-        rec[f] = self.getstring(rec[f])
+      offset = DbcFile.HEADER.size + (i * self.record_struct.size)
+      rec = list(self.record_struct.unpack_from(data, offset))
+      for f in self.string_fields:
+        rec[f] = getstring(stringblock, rec[f])
       self.records.append(rec)
+
+  def save(self):
+    """
+    turns array of records back into a binary file, returns file
+    contents as a string.
+    """
+    nrecs = len(self.records)
+    stringblock_out = stringpool.StringPool()
+    datablock = bytearray()
+
+    for i, r in enumerate(self.records):
+      pass
+      datablock.append(self.record_struct.pack(*r))
+
+    hdr_data = (
+      DbcFile.CIGAM, nrecs, field_count, self.record_struct.size, string_size)
+
+    result = DbcFile.HEADER.pack()
 
