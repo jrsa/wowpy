@@ -1,7 +1,5 @@
-""" for wotlk build 12340
-"""
-
 from struct import Struct
 
 
-header = Struct('')
+mver = Struct('I') #lol
+mhdr = Struct('')
