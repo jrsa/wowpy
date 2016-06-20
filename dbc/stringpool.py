@@ -1,7 +1,7 @@
 from zlib import adler32
 
 
-class StringPool():
+class StringPool:
 
     """
     stores strings from the records in a contiguous block,
@@ -22,7 +22,7 @@ class StringPool():
             offset = self.table[hshstr]
         except KeyError, e:
             offset = len(self.block)
-            self.block.extend(string)
+            self.block.extend(str(string))  # TODO: absolutely not (needs to explicitly encode to utf8)
             self.block.append('\x00')
             self.table[hshstr] = offset
 
