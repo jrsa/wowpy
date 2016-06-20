@@ -22,7 +22,7 @@ class StringPool:
             offset = self.table[hshstr]
         except KeyError, e:
             offset = len(self.block)
-            self.block.extend(str(string))  # TODO: absolutely not (needs to explicitly encode to utf8)
+            self.block.extend(string.encode("utf-8"))
             self.block.append('\x00')
             self.table[hshstr] = offset
 
