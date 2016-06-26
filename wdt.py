@@ -2,14 +2,15 @@
 wdt file parsing
 """
 
-import sys, struct
-from chunks import chunks
+import struct
+from chunks import chunks, makechunk
 
 
 MAP_SIZE = 64
 
+
 class Wdt(object):
-  def __init__(self, version=0):
+  def __init__(self, version=18):
     self.version = version
     self.extant_tiles = []
     self.flags = 0
@@ -24,9 +25,10 @@ class Wdt(object):
     """takes file as a string"""
     if file[:4] != 'REVM' or file[0x34:0x38] != 'NIAM':
       raise RuntimeError('not a wdt file')
+
     for id, size, data in chunks(file):
       if id == 'REVM':
-        self.version = struct.unpack('i', data)[0]
+        self.version = struct.unpack('I', data)[0]
 
       if id == 'NIAM':
         if len(data) != 32768:
@@ -41,6 +43,7 @@ class Wdt(object):
 
       elif id == 'DHPM':
         self.flags = struct.unpack('iiiiiiii', data)[0]
+
       if id == 'OMWM':
         self.object_filename = data[:-1]
       elif id == 'FDOM':
@@ -48,8 +51,12 @@ class Wdt(object):
 
   def write(self):
     """returns a string to be written to file"""
-    f = ''
+    result = bytearray()
+
+    result += makechunk('REVM', struct.pack('i', self.version))
 
 
+    result += struct.pack('I')
 
-    return f
+
+    return result
