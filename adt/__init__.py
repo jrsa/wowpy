@@ -9,3 +9,8 @@ class AdtFile(object):
         self.mapobject_refs = []
 
     
+    def load(self, data):
+        for cc, size, contents in chunks.chunks(data):
+            pass
+            # print cc
+    
