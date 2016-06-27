@@ -4,7 +4,7 @@ from .. import chunks
 chunk_formats = dict();
 
 chunk_formats['REVM'] = Struct('I')
-chunk_formats['DHOM'] = Struct('IIIIIIIIIffffffIIIIII')
+chunk_formats['DHOM'] = Struct('IIIIIIIIIffffffI')
 
 # chunk_formats['XTOM'] = Struct('')
 # chunk_formats['NGOM'] = Struct('')
@@ -36,12 +36,8 @@ class Root(object):
 
     def load(self, filedata):
         for cc, size, data in chunks.chunks(filedata):
-            if cc == 'DHOM':
-                header = chunk_formats['DHOM'].unpack_from(data)
-
-                print header
-
-                ntextures, ngroups, nportals, nlights, ndoodadnames, ndoodaddefs, \
-                    ndoodadsets, r, g, b, a, wmoid, x1, y1, z1, x2, y2, z2, flag1, \
-                    flag2, flag3, flag4, flag5 = header
-
+            try:
+                print cc, size
+                print chunk_formats[cc].unpack_from(data)
+            except KeyError, e:
+                print "format for {cc} not found".format(cc=cc)
