@@ -37,7 +37,7 @@ class Root(object):
     def load(self, filedata):
         for cc, size, data in chunks.chunks(filedata):
             try:
-                print cc, size
-                print chunk_formats[cc].unpack_from(data)
-            except KeyError, e:
-                print "format for {cc} not found".format(cc=cc)
+                print(cc, size)
+                print(chunk_formats[cc].unpack_from(data))
+            except KeyError as e:
+                print("format for {cc} not found".format(cc=cc))

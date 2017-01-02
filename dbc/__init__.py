@@ -1,7 +1,7 @@
 import logging
 from struct import Struct
-import format_import
-import stringpool
+from . import format_import
+from . import stringpool
 
 
 class DbcFile(object):
@@ -34,7 +34,7 @@ class DbcFile(object):
                     dst += data[i]
                     i += 1
                 return dst
-            except IndexError, e:
+            except IndexError as e:
                 logging.error('read past end of data')
                 return dst
 
@@ -51,7 +51,7 @@ class DbcFile(object):
 
         stringblock = data[-string_size:]
 
-        for i in xrange(rec_count):
+        for i in range(rec_count):
             offset = DbcFile.HEADER.size + (i * self.record_struct.size)
             rec = list(self.record_struct.unpack_from(data, offset))
             for f in self.string_fields:

@@ -34,8 +34,8 @@ class Wdt(object):
         if len(data) != 32768:
           raise RuntimeError('invalid MAIN sect')
 
-        for i in xrange(64):
-          for j in xrange(64):
+        for i in range(64):
+          for j in range(64):
               idx = (j * 64 + i) * self.main_rec.size
               flag = self.main_rec.unpack_from(data, idx)[0]
               if flag & 1 == 1:

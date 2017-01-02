@@ -1,1 +1,1 @@
-import root
+from . import root
