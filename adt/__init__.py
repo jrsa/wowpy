@@ -1,5 +1,6 @@
 import file_format
-import chunks
+from .. import chunks
+import struct
 
 
 class AdtFile(object):
@@ -7,10 +8,14 @@ class AdtFile(object):
         self.chunks = []
         self.doodad_refs = []
         self.mapobject_refs = []
+        self.chunk_header = struct.Struct('')
 
     
     def load(self, data):
         for cc, size, contents in chunks.chunks(data):
-            pass
-            # print cc
+            print cc
+            if cc == 'KNCM':
+                print struct.unpack('I' * 32, contents[:128])
+                for cc, size, contents in chunks.chunks(contents[128:]):
+                   print cc, size
     
