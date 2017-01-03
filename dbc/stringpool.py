@@ -16,14 +16,14 @@ class StringPool:
 
     def lookup(self, string):
 
-        hshstr = adler32(string)
+        hshstr = adler32(bytes(string, "utf-8"))
 
         try:
             offset = self.table[hshstr]
         except KeyError as e:
             offset = len(self.block)
             self.block.extend(string.encode("utf-8"))
-            self.block.append('\x00')
+            self.block.append(0)
             self.table[hshstr] = offset
 
         return offset

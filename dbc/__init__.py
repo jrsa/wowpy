@@ -6,7 +6,7 @@ from . import stringpool
 
 class DbcFile(object):
     HEADER = Struct('<4sIIII')
-    CIGAM = 'WDBC'
+    CIGAM = b'WDBC'
 
     def __init__(self, rec_format):
         """
@@ -27,11 +27,15 @@ class DbcFile(object):
         """load records from string with the file contents"""
 
         def getstring(data, ofs):
+            """
+            from a bytes containing null-terminated strings,
+            returns one string given its offset in the block
+            """
             i = ofs
             dst = ''
             try:
-                while data[i] != '\x00':
-                    dst += data[i]
+                while data[i] != 0:
+                    dst += chr(data[i])
                     i += 1
                 return dst
             except IndexError as e:
@@ -46,7 +50,7 @@ class DbcFile(object):
                 'invalid dbc file (magic == {magic})'.format(magic=magic))
 
         if self.record_struct is None:
-            logging.info('defaulting to unsigned ints for all fields')
+            logging.warning('defaulting to unsigned ints for all fields')
             self.record_struct = Struct('I' * field_count)
 
         stringblock = data[-string_size:]
@@ -76,19 +80,18 @@ class DbcFile(object):
 
         stringblock_out = stringpool.StringPool()
         datablock = bytearray()
-        result = bytearray()
 
         for r in self.records:
             strung = process_string_fields(r)
             rowdata = self.record_struct.pack(*strung)
             datablock += rowdata
 
-        result = result.join(DbcFile.HEADER.pack(
+        result = DbcFile.HEADER.pack(
             DbcFile.CIGAM,
             len(self.records),
             len(self.records[0]),  # TODO: how bout fucking not
             self.record_struct.size,
-            len(stringblock_out.block)))
+            len(stringblock_out.block))
 
         result += datablock
         result += stringblock_out.block
