@@ -3,8 +3,18 @@ from .. import chunks
 
 chunk_formats = dict();
 
-chunk_formats['REVM'] = Struct('I')
-chunk_formats['DHOM'] = Struct('IIIIIIIIIffffffI')
+"""
+need to implement four types of chunks:
+
+* single string
+* stringblock
+* single struct
+* array of structs
+
+"""
+
+chunk_formats[b'REVM'] = Struct('I')
+chunk_formats[b'DHOM'] = Struct('IIIIIIIIIffffffI')
 
 # chunk_formats['XTOM'] = Struct('')
 # chunk_formats['NGOM'] = Struct('')

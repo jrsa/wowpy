@@ -1,7 +1,7 @@
 import os.path
-import simple_file
-import wdt
-import adt
+from . import simple_file
+from . import wdt
+from . import adt
 
 
 class MapLoad():
