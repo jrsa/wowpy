@@ -3,7 +3,7 @@ wdt file parsing
 """
 
 import struct
-from chunks import chunks, makechunk
+from .chunks import chunks, makechunk
 
 
 MAP_SIZE = 64
@@ -21,17 +21,17 @@ class Wdt(object):
   def parse_modf(self, data):
     self.obj = self.objdef_rec.unpack(data)
 
-  def read(self, file):
-    """takes file as a string"""
-    if file[:4] != 'REVM' or file[0x34:0x38] != 'NIAM':
+  def read(self, bytes):
+    """takes file as bytes"""
+    if bytes[:4] != b'REVM' or bytes[0x34:0x38] != b'NIAM':
       raise RuntimeError('not a wdt file')
 
-    for id, size, data in chunks(file):
-      if id == 'REVM':
+    for id, size, data in chunks(bytes):
+      if id == b'REVM':
         self.version = struct.unpack('I', data)[0]
 
-      if id == 'NIAM':
-        if len(data) != 32768:
+      if id == b'NIAM':
+        if len(bytes) != 32768:
           raise RuntimeError('invalid MAIN sect')
 
         for i in range(64):
@@ -41,12 +41,12 @@ class Wdt(object):
               if flag & 1 == 1:
                 self.extant_tiles.append((i, j))
 
-      elif id == 'DHPM':
+      elif id == b'DHPM':
         self.flags = struct.unpack('iiiiiiii', data)[0]
 
-      if id == 'OMWM':
+      if id == b'OMWM':
         self.object_filename = data[:-1]
-      elif id == 'FDOM':
+      elif id == b'FDOM':
         self.parse_modf(data)
 
   def write(self):
