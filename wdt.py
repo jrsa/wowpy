@@ -21,17 +21,17 @@ class Wdt(object):
   def parse_modf(self, data):
     self.obj = self.objdef_rec.unpack(data)
 
-  def read(self, bytes):
+  def read(self, data):
     """takes file as bytes"""
-    if bytes[:4] != b'REVM' or bytes[0x34:0x38] != b'NIAM':
+    if data[:4] != b'REVM' or data[0x34:0x38] != b'NIAM':
       raise RuntimeError('not a wdt file')
 
-    for id, size, data in chunks(bytes):
+    for id, size, data in chunks(data):
       if id == b'REVM':
         self.version = struct.unpack('I', data)[0]
 
       if id == b'NIAM':
-        if len(bytes) != 32768:
+        if len(data) != 32768:
           raise RuntimeError('invalid MAIN sect')
 
         for i in range(64):
