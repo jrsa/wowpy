@@ -22,6 +22,8 @@ class FormatImport:
             "uint32": "I",
             "int32": "i",
             "float": "f",
+            "Float": "f",
+            "uint8": "B",
             "uint64": "Q"
         }
 
