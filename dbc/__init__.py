@@ -53,6 +53,11 @@ class DbcFile(object):
             logging.warning('defaulting to unsigned ints for all fields')
             self.record_struct = Struct('I' * field_count)
 
+        else:
+            if rec_size != self.record_struct.size:
+                logging.error('record size mismatch, header reads {}, whereas imported format shows {}'.format(
+                    rec_size, self.record_struct.size))
+
         stringblock = data[-string_size:]
 
         for i in range(rec_count):
