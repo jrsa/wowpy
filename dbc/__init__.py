@@ -4,6 +4,10 @@ from . import format_import
 from . import stringpool
 
 
+class FormatError(Exception):
+    pass
+
+
 class DbcFile(object):
     HEADER = Struct('<4sIIII')
     CIGAM = b'WDBC'
@@ -14,6 +18,7 @@ class DbcFile(object):
         (struct_format, [stringfield_indices]) pair
         """
         self.records = []
+        self.fieldcount = 0
 
         if rec_format is None:
             logging.warning('no format specified')
@@ -33,20 +38,19 @@ class DbcFile(object):
             """
             i = ofs
             dst = ''
-            try:
-                while data[i] != 0:
-                    dst += chr(data[i])
-                    i += 1
-                return dst
-            except IndexError as e:
-                logging.error('read past end of data')
-                return dst
+            while data[i] != 0:
+                dst += chr(data[i])
+                i += 1
+            return dst
 
         header_data = DbcFile.HEADER.unpack_from(data)
         magic, rec_count, field_count, rec_size, string_size = header_data
 
+        # TODO: should check this with the format definition
+        self.fieldcount = field_count
+
         if magic != DbcFile.CIGAM:
-            raise RuntimeError(
+            raise FormatError(
                 'invalid dbc file (magic == {magic})'.format(magic=magic))
 
         if self.record_struct is None:
@@ -55,7 +59,7 @@ class DbcFile(object):
 
         else:
             if rec_size != self.record_struct.size:
-                logging.error('record size mismatch, header reads {}, whereas imported format shows {}'.format(
+                raise FormatError('record size mismatch, header reads {}, whereas imported format shows {}'.format(
                     rec_size, self.record_struct.size))
 
         stringblock = data[-string_size:]
@@ -64,7 +68,12 @@ class DbcFile(object):
             offset = DbcFile.HEADER.size + (i * self.record_struct.size)
             rec = list(self.record_struct.unpack_from(data, offset))
             for f in self.string_fields:
-                rec[f] = getstring(stringblock, rec[f])
+                try:
+                    rec[f] = getstring(stringblock, rec[f])
+                except IndexError as e:
+                    raise FormatError(
+                        "read past end of string block for field {}, check format".format(f))
+
             self.records.append(rec)
 
     def save(self):
@@ -86,6 +95,11 @@ class DbcFile(object):
         stringblock_out = stringpool.StringPool()
         datablock = bytearray()
 
+        if len(self.records) == 0:
+            field_count = self.fieldcount
+        else:
+            field_count = len(self.records[0])
+
         for r in self.records:
             strung = process_string_fields(r)
             rowdata = self.record_struct.pack(*strung)
@@ -94,7 +108,7 @@ class DbcFile(object):
         result = DbcFile.HEADER.pack(
             DbcFile.CIGAM,
             len(self.records),
-            len(self.records[0]),  # TODO: how bout fucking not
+            field_count,
             self.record_struct.size,
             len(stringblock_out.block))
 
