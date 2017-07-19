@@ -4,7 +4,10 @@ from os.path import dirname, join
 from lxml import etree
 from .. import simple_file
 
-packaged_xml_filename = join(dirname(__file__), "map.xml")
+# packaged_xml_filename = join(dirname(__file__), "map.xml")
+packaged_xml_filename = "map.xml" # temporary, need to figure out how
+								  # to get pyinstaller to put this in
+								  # the right place
 
 
 class FormatImport:
