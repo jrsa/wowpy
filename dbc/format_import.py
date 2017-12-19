@@ -4,7 +4,7 @@ from os.path import dirname, join
 from lxml import etree
 from .. import simple_file
 
-packaged_xml_filename = join(dirname(__file__), "map2.xml")
+packaged_xml_filename = join(dirname(__file__), "map3.xml")
 
 
 def find_by_name(list, name):
@@ -25,6 +25,9 @@ class FormatImport:
     """
 
     def __init__(self, fn=packaged_xml_filename):
+        if not fn:
+            fn = packaged_xml_filename
+        print("format file: {}".format(fn))
         xml_contents = simple_file.load(fn)
         self.root = etree.fromstring(xml_contents)
         self.typetable = {
