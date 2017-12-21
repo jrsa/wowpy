@@ -9052,24 +9052,36 @@
 	        <type>float</type>
 	    </element>
 	    <element>
-	        <name>122-123</name>
-	        <type>uint64</type>
+	        <name>122</name>
+	        <type>uint32</type>
+	    </element>
+	    <element>
+	        <name>123</name>
+	        <type>uint32</type>
 	    </element>
 	    <element>
 	        <name>124</name>
 	        <type>uint32</type>
 	    </element>
 	    <element>
-	        <name>125-126</name>
-	        <type>uint64</type>
+	        <name>125</name>
+	        <type>uint32</type>
+	    </element>
+	    <element>
+	        <name>126</name>
+	        <type>uint32</type>
 	    </element>
 	    <element>
 	        <name>127</name>
 	        <type>uint32</type>
 	    </element>
 	    <element>
-	        <name>128-129</name>
-	        <type>uint64</type>
+	        <name>128</name>
+	        <type>uint32</type>
+	    </element>
+	    <element>
+	        <name>129</name>
+	        <type>uint32</type>
 	    </element>
 	    <element>
 	        <name>130</name>
@@ -9388,8 +9400,12 @@
 	        <type>uint32</type>
 	    </element>
 	    <element>
-	        <name>209-210</name>
-	        <type>uint64</type>
+	        <name>209</name>
+	        <type>uint32</type>
+	    </element>
+	    <element>
+	        <name>210</name>
+	        <type>uint32</type>
 	    </element>
 	    <element>
 	        <name>211</name>
