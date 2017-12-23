@@ -26,6 +26,25 @@ class FormatImport:
             "uint8": "B",
             "uint64": "Q"
         }
+        self.mysql_typetable = {
+            "string": "TEXT",
+            "uint32": "INT UNSIGNED",
+            "int32": "INT",
+            "float": "FLOAT",
+            "Float": "FLOAT",
+            "uint8": "TINYINT UNSIGNED",
+            "uint64": "BIGINT"
+        }
+
+    def load_format(self, name):
+        file_element = self.root.find(name)
+
+        if file_element is not None:
+            return file_element.getchildren()
+        else:
+            logging.warning(
+                "couldnt find {name} in format file".format(name=dbc_name))
+            return None
 
     def get_format(self, dbc_name):
         if dbc_name[-4:] == '.dbc':
@@ -34,14 +53,7 @@ class FormatImport:
         format_string = ''
         string_fields = []
 
-        file_element = self.root.find(dbc_name)
-
-        if file_element is None:
-            logging.warning(
-                "couldnt find {name} in format file".format(name=dbc_name))
-            return None
-
-        fields = file_element.getchildren()
+        fields = self.load_format(dbc_name)
 
         idx = 0
 
@@ -57,3 +69,31 @@ class FormatImport:
             idx += 1
 
         return format_string, string_fields
+
+    def get_mysql_columns(self, table_name):
+        """
+        this provides a tuple (name, sql datatype) for every column. an
+        index-based default name is provided if there is no defined name
+        for the column. the first field is always an id in dbc files,
+        and it is named as such so that it can be specified as the
+        primary key of the mysql table.
+        """
+        if table_name[-4:] == '.dbc':
+            table_name = table_name[:-4]
+
+        mysql_columns = []
+
+        fields = self.load_format(table_name)
+
+        for i, field in enumerate(fields):
+            name = field.find("name").text
+            if not name:
+                if i == 0:
+                    name = "id"
+                else:
+                    name = "col{}".format(i)
+
+            type_id = field.find("type").text
+            mysql_columns.append((name, self.mysql_typetable[type_id]))
+
+        return mysql_columns
