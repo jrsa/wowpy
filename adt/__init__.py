@@ -2,20 +2,40 @@ from . import file_format
 from .. import chunks
 import struct
 
+from collections import namedtuple
+
+from . import file_format
+
+SMChunk = namedtuple('SMChunk', ['flags', 'indexX', 'indexY', 'nLayers', 'nDoodadRefs',
+                                 'ofsHeight', 'ofsNormal', 'ofsLayer', 'ofsRefs', 'ofsAlpha',
+                                 'sizeAlpha', 'ofsShadow', 'sizeShadow', 'areaId', 'nWmoRefs',
+                                 'holesAndUnk', 'map1', 'map2', 'map3', 'map4', 'nEffectDoodadHi',
+                                 'nEffectDoodadLo', 'ofsSoundEmitters', 'nSoundEmitters',
+                                 'ofsLiquid', 'sizeLiquid', 'xpos', 'ypos', 'zpos', 'ofsMccv',
+                                 'ofsMclv', 'unused'])
+
+
+class MapChunk(object):
+    def __init__(self):
+        self.areaId = None
+
+    def load(self, header, data):
+        header_data = SMChunk._make(header)
+        self.areaId = header_data.areaId
+
 
 class AdtFile(object):
     def __init__(self):
         self.chunks = []
         self.doodad_refs = []
         self.mapobject_refs = []
-        self.chunk_header = struct.Struct('')
 
     
     def load(self, data):
         for cc, size, contents in chunks.chunks(data):
-            print(cc)
-            if cc == 'KNCM':
-                print(struct.unpack('I' * 32, contents[:128]))
-                for cc, size, contents in chunks.chunks(contents[128:]):
-                   print(cc, size)
-    
+            if cc == b'KNCM':
+                c = MapChunk()
+                header = file_format.mcnk_header.unpack(contents[:128])
+                data = contents[128:]
+                c.load(header, data)
+                self.chunks.append(c)

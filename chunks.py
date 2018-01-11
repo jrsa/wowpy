@@ -14,6 +14,8 @@ def chunks(data):
         magic, size = chunk.unpack_from(data, counter)
         counter += chunk.size
         contents = data[counter:counter+size]
+        if magic == b'RNCM':
+            size = 448
         yield magic, size, contents
         counter += size
 
