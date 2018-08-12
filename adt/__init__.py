@@ -19,9 +19,14 @@ class MapChunk(object):
     def __init__(self):
         self.areaId = None
 
+        # dont really need this except to debug/analyze files
+        self.chunknames = []
+
     def load(self, header, data):
         header_data = SMChunk._make(header)
         self.areaId = header_data.areaId
+        for cc, size, contents in chunks.chunks(data):
+            self.chunknames.append(cc)
 
 
 class AdtFile(object):
@@ -30,7 +35,7 @@ class AdtFile(object):
         self.doodad_refs = []
         self.mapobject_refs = []
 
-    
+
     def load(self, data):
         for cc, size, contents in chunks.chunks(data):
             if cc == b'KNCM':
@@ -39,3 +44,8 @@ class AdtFile(object):
                 data = contents[128:]
                 c.load(header, data)
                 self.chunks.append(c)
+            elif cc == b'OMWM':
+                self.wmo_names = contents.split(b'\000')
+
+            elif cc == b'XDMM':
+                self.doodad_names = contents.split(b'\000')
