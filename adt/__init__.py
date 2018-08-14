@@ -25,7 +25,14 @@ class MapChunk(object):
     def load(self, header, data):
         header_data = SMChunk._make(header)
         self.areaId = header_data.areaId
-        for cc, size, contents in chunks.chunks(data):
+
+        size_overrides = {
+            b'MCAL'[::-1]: header_data.sizeAlpha - 8,
+            b'MCLQ'[::-1]: header_data.sizeLiquid,
+            b'MCNR'[::-1]: 448
+        }
+
+        for cc, size, contents in chunks.chunks(data, size_overrides):
             self.chunknames.append(cc)
 
 

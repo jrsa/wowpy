@@ -1,23 +1,38 @@
 from struct import Struct
+from struct import error as struct_error
 
 
 chunk = Struct('<4si')
 
 
-def chunks(data):
+def chunks(data, overrides = {}):
     """
     generator giving all off the IFF chunks in a buffer
     does not handle bad input :(
     """
     counter, filesize = 0, len(data)
+    last = None
     while counter < filesize:
-        magic, size = chunk.unpack_from(data, counter)
+        try:
+            magic, size = chunk.unpack_from(data, counter)
+        except struct_error as e:
+            print('failed loading chunk from', data[:counter])
+            print('last chunk:', last)
+            raise e
+
         counter += chunk.size
         contents = data[counter:counter+size]
-        if magic == b'RNCM':
-            size = 448
+
+        if magic[3] != 0x4D:
+            raise Exception('bad magic', magic, 'last chunk:', last)
+
+        if magic in overrides:
+            size = overrides[magic]
+
         yield magic, size, contents
         counter += size
+
+        last = (magic, size, contents)
 
 def makechunk(cc, data):
     assert type(cc) == str
