@@ -3,7 +3,7 @@ wdt file parsing
 """
 
 import struct
-from .chunks import chunks, makechunk
+from ..chunks import chunks, makechunk
 
 
 MAP_SIZE = 64
