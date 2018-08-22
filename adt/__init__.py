@@ -50,7 +50,10 @@ class MapChunk(object):
         # dont really need this except to debug/analyze files
         self.chunknames = []
 
-    def load(self, header, data):
+    def load(self, data):
+        header = mcnk_header.unpack(data[:128])
+        subchunks = data[128:]
+
         self.areaId = header.areaId
 
         size_overrides = {
@@ -59,7 +62,7 @@ class MapChunk(object):
             b'MCNR'[::-1]: 448
         }
 
-        for cc, size, contents in chunks.chunks(data, size_overrides):
+        for cc, size, contents in chunks.chunks(subchunks, size_overrides):
             self.chunknames.append(cc)
 
 
@@ -74,9 +77,7 @@ class AdtFile(object):
         for cc, size, contents in chunks.chunks(data):
             if cc == b'KNCM':
                 c = MapChunk()
-                header = mcnk_header.unpack(contents[:128])
-                data = contents[128:]
-                c.load(header, data)
+                c.load(contents)
                 self.chunks.append(c)
             elif cc == b'OMWM':
                 self.wmo_names = contents.split(b'\000')
