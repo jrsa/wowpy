@@ -1,11 +1,6 @@
-from . import file_format
 from .. import chunks
-import struct
-
-from collections import namedtuple
-
-from . import file_format
 from ..namedstruct import NamedStruct
+
 
 mcnk_header = NamedStruct((
     ('flags', 'I'),
