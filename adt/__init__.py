@@ -5,14 +5,42 @@ import struct
 from collections import namedtuple
 
 from . import file_format
+from ..namedstruct import NamedStruct
 
-SMChunk = namedtuple('SMChunk', ['flags', 'indexX', 'indexY', 'nLayers', 'nDoodadRefs',
-                                 'ofsHeight', 'ofsNormal', 'ofsLayer', 'ofsRefs', 'ofsAlpha',
-                                 'sizeAlpha', 'ofsShadow', 'sizeShadow', 'areaId', 'nWmoRefs',
-                                 'holesAndUnk', 'map1', 'map2', 'map3', 'map4', 'nEffectDoodadHi',
-                                 'nEffectDoodadLo', 'ofsSoundEmitters', 'nSoundEmitters',
-                                 'ofsLiquid', 'sizeLiquid', 'xpos', 'ypos', 'zpos', 'ofsMccv',
-                                 'ofsMclv', 'unused'])
+mcnk_header = NamedStruct((
+    ('flags', 'I'),
+    ('indexX', 'I'),
+    ('indexY', 'I'),
+    ('nLayers', 'I'),
+    ('nDoodadRefs', 'I'),
+    ('ofsHeight', 'I'),
+    ('ofsNormal', 'I'),
+    ('ofsLayer', 'I'),
+    ('ofsRefs', 'I'),
+    ('ofsAlpha', 'I'),
+    ('sizeAlpha', 'I'),
+    ('ofsShadow', 'I'),
+    ('sizeShadow', 'I'),
+    ('areaId', 'I'),
+    ('nWmoRefs', 'I'),
+    ('holesAndUnk', 'I'),
+    ('map1', 'I'),
+    ('map2', 'I'),
+    ('map3', 'I'),
+    ('map4', 'I'),
+    ('nEffectDoodadHi', 'I'),
+    ('nEffectDoodadLo', 'I'),
+    ('ofsSoundEmitters', 'I'),
+    ('nSoundEmitters', 'I'),
+    ('ofsLiquid', 'I'),
+    ('sizeLiquid', 'I'),
+    ('xpos', 'f'),
+    ('ypos', 'f'),
+    ('zpos', 'f'),
+    ('ofsMccv', 'I'),
+    ('ofsMclv', 'I'),
+    ('unused', 'I')
+), 'SMChunk')
 
 
 class MapChunk(object):
@@ -23,12 +51,11 @@ class MapChunk(object):
         self.chunknames = []
 
     def load(self, header, data):
-        header_data = SMChunk._make(header)
-        self.areaId = header_data.areaId
+        self.areaId = header.areaId
 
         size_overrides = {
-            b'MCAL'[::-1]: header_data.sizeAlpha - 8,
-            b'MCLQ'[::-1]: header_data.sizeLiquid,
+            b'MCAL'[::-1]: header.sizeAlpha - 8,
+            b'MCLQ'[::-1]: header.sizeLiquid,
             b'MCNR'[::-1]: 448
         }
 
@@ -47,7 +74,7 @@ class AdtFile(object):
         for cc, size, contents in chunks.chunks(data):
             if cc == b'KNCM':
                 c = MapChunk()
-                header = file_format.mcnk_header.unpack(contents[:128])
+                header = mcnk_header.unpack(contents[:128])
                 data = contents[128:]
                 c.load(header, data)
                 self.chunks.append(c)
