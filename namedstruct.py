@@ -1,5 +1,5 @@
 from collections import namedtuple
-from struct import Struct
+from struct import Struct, calcsize
 
 
 class NamedStruct():
@@ -8,7 +8,10 @@ class NamedStruct():
         fields = []
         for field in decl:
             fmt += field[1]
-            fields.append(field[0])
+            if field[0]:
+                fields.append(field[0])
+            else:
+                fields.append(f'field_{calcsize(fmt)}')
 
         self.nt = namedtuple(name, fields)
         self.strukt = Struct(fmt)
@@ -18,3 +21,6 @@ class NamedStruct():
 
     def pack(self, s):
         return self.strukt.pack(s)
+
+    def size(self):
+        return self.strukt.size
