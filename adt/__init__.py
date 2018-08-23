@@ -1,41 +1,5 @@
 from .. import chunks
-from ..namedstruct import NamedStruct
-
-
-mcnk_header = NamedStruct((
-    ('flags', 'I'),
-    ('indexX', 'I'),
-    ('indexY', 'I'),
-    ('nLayers', 'I'),
-    ('nDoodadRefs', 'I'),
-    ('ofsHeight', 'I'),
-    ('ofsNormal', 'I'),
-    ('ofsLayer', 'I'),
-    ('ofsRefs', 'I'),
-    ('ofsAlpha', 'I'),
-    ('sizeAlpha', 'I'),
-    ('ofsShadow', 'I'),
-    ('sizeShadow', 'I'),
-    ('areaId', 'I'),
-    ('nWmoRefs', 'I'),
-    ('holesAndUnk', 'I'),
-    ('map1', 'I'),
-    ('map2', 'I'),
-    ('map3', 'I'),
-    ('map4', 'I'),
-    ('nEffectDoodadHi', 'I'),
-    ('nEffectDoodadLo', 'I'),
-    ('ofsSoundEmitters', 'I'),
-    ('nSoundEmitters', 'I'),
-    ('ofsLiquid', 'I'),
-    ('sizeLiquid', 'I'),
-    ('xpos', 'f'),
-    ('ypos', 'f'),
-    ('zpos', 'f'),
-    ('ofsMccv', 'I'),
-    ('ofsMclv', 'I'),
-    ('unused', 'I')
-), 'SMChunk')
+from .file_format import mcnk_header
 
 
 class MapChunk(object):
@@ -74,8 +38,3 @@ class AdtFile(object):
                 c = MapChunk()
                 c.load(contents)
                 self.chunks.append(c)
-            elif cc == b'OMWM':
-                self.wmo_names = contents.split(b'\000')
-
-            elif cc == b'XDMM':
-                self.doodad_names = contents.split(b'\000')

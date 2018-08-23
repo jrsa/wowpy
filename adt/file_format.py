@@ -1,4 +1,37 @@
-from struct import Struct
+from ..namedstruct import NamedStruct
 
 
-mcnk_header = Struct('IIIIIIIIIIIIIIIIIIIIIIIIIIfffIII')
+mcnk_header = NamedStruct((
+    ('flags', 'I'),
+    ('indexX', 'I'),
+    ('indexY', 'I'),
+    ('nLayers', 'I'),
+    ('nDoodadRefs', 'I'),
+    ('ofsHeight', 'I'),
+    ('ofsNormal', 'I'),
+    ('ofsLayer', 'I'),
+    ('ofsRefs', 'I'),
+    ('ofsAlpha', 'I'),
+    ('sizeAlpha', 'I'),
+    ('ofsShadow', 'I'),
+    ('sizeShadow', 'I'),
+    ('areaId', 'I'),
+    ('nWmoRefs', 'I'),
+    ('holesAndUnk', 'I'),
+    ('map1', 'I'),
+    ('map2', 'I'),
+    ('map3', 'I'),
+    ('map4', 'I'),
+    ('nEffectDoodadHi', 'I'),
+    ('nEffectDoodadLo', 'I'),
+    ('ofsSoundEmitters', 'I'),
+    ('nSoundEmitters', 'I'),
+    ('ofsLiquid', 'I'),
+    ('sizeLiquid', 'I'),
+    ('xpos', 'f'),
+    ('ypos', 'f'),
+    ('zpos', 'f'),
+    ('ofsMccv', 'I'),
+    ('ofsMclv', 'I'),
+    ('unused', 'I')
+), 'SMChunk')
