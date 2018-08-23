@@ -3,6 +3,8 @@ from struct import Struct
 from . import format_import
 from . import stringpool
 
+from ..stringblock import getstring
+
 
 class FormatError(Exception):
     pass
@@ -30,18 +32,6 @@ class DbcFile(object):
 
     def load(self, data):
         """load records from string with the file contents"""
-
-        def getstring(data, ofs):
-            """
-            from a bytes containing null-terminated strings,
-            returns one string given its offset in the block
-            """
-            i = ofs
-            dst = ''
-            while data[i] != 0:
-                dst += chr(data[i])
-                i += 1
-            return dst
 
         header_data = DbcFile.HEADER.unpack_from(data)
         magic, rec_count, field_count, rec_size, string_size = header_data
