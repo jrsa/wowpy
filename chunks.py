@@ -1,6 +1,8 @@
 from struct import Struct
 from struct import error as struct_error
 
+from .namedstruct import NamedStruct
+
 
 chunk = Struct('<4si')
 
@@ -33,6 +35,32 @@ def chunks(data, overrides = {}):
         counter += size
 
         last = (magic, size, contents)
+
+def parse(data, cnkformat):
+    result = {}
+    for id, size, data in chunks(data):
+        magic_as_str = id[::-1].decode()
+
+        if magic_as_str in cnkformat:
+            strukt = NamedStruct(cnkformat[magic_as_str], f'{magic_as_str}_struct')
+
+            if len(data) % strukt.size():
+                raise Exception(f'len(data) ({len(data)}) not even multiple of strukt.size() ({strukt.size()})')
+
+            recsize = strukt.size()
+
+            count = len(data) // recsize
+            records = []
+            for i in range(count):
+                records.append(strukt.unpack(data[(i * recsize):(i * recsize) + recsize]))
+
+            result[magic_as_str] = records
+
+        else:
+            result[magic_as_str] = data.split(b'\000')
+
+    return result
+
 
 def makechunk(cc, data):
     assert type(cc) == str
