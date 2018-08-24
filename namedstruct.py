@@ -15,12 +15,10 @@ class NamedStruct():
 
         self.nt = namedtuple(name, fields)
         self.strukt = Struct(fmt)
+        self.size = self.strukt.size
 
     def unpack(self, data):
         return self.nt._make(self.strukt.unpack(data))
 
     def pack(self, s):
         return self.strukt.pack(s)
-
-    def size(self):
-        return self.strukt.size

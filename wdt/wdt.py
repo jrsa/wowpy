@@ -18,14 +18,13 @@ class Wdt(object):
     """takes file as bytes"""
     parsed_chunks = parse(data, wdt_chunk_formats)
 
-    self.version = parsed_chunks['MVER'][0].version
-    self.flags = parsed_chunks['MPHD'][0].flags
-    self.object_filename = parsed_chunks['MWMO'][0]
+    self.version = parsed_chunks['MVER'].version
+    self.flags = parsed_chunks['MPHD'].flags
+    self.object_filename = parsed_chunks['MWMO'].get(0)
 
     try:
-      self.obj = parsed_chunks['MODF'][0]
-    except KeyError:
-      pass
+      self.obj = parsed_chunks['MODF']
+    except KeyError: pass
 
     self.extant_tiles = []
 

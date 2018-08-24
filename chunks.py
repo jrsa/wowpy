@@ -41,23 +41,12 @@ def parse(data, cnkformat):
     for id, size, data in chunks(data):
         magic_as_str = id[::-1].decode()
 
-        if magic_as_str in cnkformat:
-            strukt = NamedStruct(cnkformat[magic_as_str], f'{magic_as_str}_struct')
+        if not magic_as_str in cnkformat:
+            print(f'format for {magic_as_str} not specified')
+            continue
 
-            if len(data) % strukt.size():
-                raise Exception(f'len(data) ({len(data)}) not even multiple of strukt.size() ({strukt.size()})')
-
-            recsize = strukt.size()
-
-            count = len(data) // recsize
-            records = []
-            for i in range(count):
-                records.append(strukt.unpack(data[(i * recsize):(i * recsize) + recsize]))
-
-            result[magic_as_str] = records
-
-        else:
-            result[magic_as_str] = data.split(b'\000')
+        format_decl = cnkformat[magic_as_str]
+        result[magic_as_str] = format_decl.unpack(data)
 
     return result
 

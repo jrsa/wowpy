@@ -1,37 +1,5 @@
-from struct import Struct
 from .. import chunks
-
-chunk_formats = dict();
-
-"""
-need to implement four types of chunks:
-
-* single string
-* stringblock
-* single struct
-* array of structs
-
-"""
-
-chunk_formats[b'REVM'] = Struct('I')
-chunk_formats[b'DHOM'] = Struct('IIIIIIIIIffffffI')
-
-# chunk_formats['XTOM'] = Struct('')
-# chunk_formats['NGOM'] = Struct('')
-# chunk_formats['BSOM'] = Struct('')
-# chunk_formats['NDOM'] = Struct('')
-# chunk_formats['SDOM'] = Struct('')
-
-# chunk_formats['TMOM'] = Struct('')
-# chunk_formats['IGOM'] = Struct('')
-# chunk_formats['VPOM'] = Struct('')
-# chunk_formats['TPOM'] = Struct('')
-# chunk_formats['RPOM'] = Struct('')
-# chunk_formats['VVOM'] = Struct('')
-# chunk_formats['BVOM'] = Struct('')
-# chunk_formats['TLOM'] = Struct('')
-# chunk_formats['DDOM'] = Struct('')
-# chunk_formats['GOFM'] = Struct('')
+from .format import root_chunks
 
 
 class Root(object):
@@ -45,9 +13,15 @@ class Root(object):
         self.groups = []
 
     def load(self, filedata):
-        for cc, size, data in chunks.chunks(filedata):
-            try:
-                print(cc, size)
-                print(chunk_formats[cc].unpack_from(data))
-            except KeyError as e:
-                print("format for {cc} not found".format(cc=cc))
+        parsed_chunks = chunks.parse(filedata, root_chunks)
+        print(f'{parsed_chunks.keys()} found in wmo root file')
+
+        # for k in parsed_chunks:
+        #     print(k, parsed_chunks[k])
+
+        # for g in parsed_chunks['MOGI']:
+        #     print(parsed_chunks['MOGN'].get(g.nameIndex))
+
+        # print(parsed_chunks['MOTX'].as_array())
+        # print(parsed_chunks['MODN'].as_array())
+        print(parsed_chunks['MOSB'].as_array())
