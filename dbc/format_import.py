@@ -60,7 +60,6 @@ class FormatImport:
         idx = 0
 
         for field in fields:
-            name = field.find("name").text
             type_id = field.find("type").text
 
             format_string += self.typetable[type_id]
