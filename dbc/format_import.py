@@ -4,6 +4,8 @@ from os.path import dirname, join
 from lxml import etree
 from .. import simple_file
 
+from ..namedstruct import NamedStruct
+
 packaged_xml_filename = join(dirname(__file__), "map.xml")
 
 
@@ -68,7 +70,16 @@ class FormatImport:
 
             idx += 1
 
-        return format_string, string_fields
+        record_struct = NamedStruct(tuple(zip(self.get_field_names(dbc_name), format_string)))
+        return record_struct, string_fields
+
+    def get_field_names(self, dbc_name):
+        if dbc_name[-4:] == '.dbc':
+            dbc_name = dbc_name[:-4]
+
+        fields = self.load_format(dbc_name)
+
+        return [field.find("name").text for field in fields]
 
     def get_mysql_columns(self, table_name):
         """

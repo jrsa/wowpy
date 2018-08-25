@@ -27,7 +27,7 @@ class DbcFile(object):
             self.record_struct = None
             self.string_fields = []
         else:
-            self.record_struct = Struct(rec_format[0])
+            self.record_struct = rec_format[0]
             self.string_fields = rec_format[1]
 
     def load(self, data):
@@ -56,15 +56,20 @@ class DbcFile(object):
 
         for i in range(rec_count):
             offset = DbcFile.HEADER.size + (i * self.record_struct.size)
-            rec = list(self.record_struct.unpack_from(data, offset))
-            for f in self.string_fields:
-                try:
-                    rec[f] = getstring(stringblock, rec[f])
-                except IndexError as e:
-                    raise FormatError(
-                        "read past end of string block for field {}, check format".format(f))
+            rec = self.record_struct.unpack_from(data, offset)
 
-            self.records.append(rec)
+            try:
+                strung = {k: getstring(stringblock, rec[i])
+                          for i,k in enumerate(rec._asdict())
+                          if i in self.string_fields}
+            except IndexError as e:
+                raise FormatError(
+                    "read past end of string block for field {}, check format".format(f))
+
+            newrec = rec._asdict()
+            newrec.update(strung)
+
+            self.records.append(self.record_struct.nt(**newrec))
 
     def save(self):
         """
